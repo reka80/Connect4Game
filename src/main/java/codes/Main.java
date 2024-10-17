@@ -6,4 +6,3 @@ public class Main {
         game.playGame(); // Játék indítása
     }
 }
-
