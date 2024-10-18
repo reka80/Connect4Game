@@ -25,6 +25,19 @@ public class ConnectFour {
     public void playGame() {
         boolean isHumanTurn = true; // Humán játékos kezd
 
+//ezek itt
+
+        System.out.print("Kérlek, add meg a játékállás fájl nevét ");
+        String filePath = scanner.nextLine();
+
+
+        try {System.out.print("Kérlek, add meg a fájl nevét (és elérési útját), ahová a játék állapotát szeretnéd menteni: ");
+            String saveFilePath = scanner.nextLine();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+
         while (true) {
             printBoard(); // Tábla kiírása
             if (isHumanTurn) {
@@ -32,6 +45,7 @@ public class ConnectFour {
             } else {
                 aiTurn(); // Gép játékos lépése
             }
+//eddig
 
             // Ellenőrizzük a győzelmet
             if (checkWin(isHumanTurn ? HUMAN : AI)) {
