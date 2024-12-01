@@ -1,60 +1,63 @@
 package codes;
 
 public class GameState {
-    private static final int ROWS = 6;
-    private static final int COLUMNS = 7;
-    private static final char EMPTY = '.';
+    private String[][] board;
+    private String currentPlayer;
+    private int rows = 6;
+    private int cols = 7;
 
-    private char[][] board;  // A játék táblája
-    private Player player1;  // Az első játékos
-    private Player player2;  // A második játékos
-    private Player currentPlayer;  // Az aktuális játékos
-
-    public GameState(Player player1, Player player2) {
-        this.board = new char[ROWS][COLUMNS];
-        for (int i = 0; i < ROWS; i++) {
-            for (int j = 0; j < COLUMNS; j++) {
-                board[i][j] = EMPTY;
+    public GameState() {
+        board = new String[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                board[i][j] = " ";
             }
         }
-        this.player1 = player1;
-        this.player2 = player2;
-        this.currentPlayer = player1;  // Az első játékos kezd
+        currentPlayer = "Yellow"; // Sárga kezdi
     }
 
-    // Tábla kirajzolása
-    public void printBoard() {
-        for (int r = 0; r < ROWS; r++) {
-            for (int c = 0; c < COLUMNS; c++) {
-                System.out.print(board[r][c] + " ");
+    // Táblázat kiírása
+    public String getBoard() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                sb.append("|").append(board[i][j]);
             }
-            System.out.println();
+            sb.append("|\n");
         }
-        System.out.println("a b c d e f g");  // Oszlop jelölések
+        return sb.toString();
     }
 
-    // Lépés elvégzése egy adott oszlopban
-    public boolean dropPiece(int column) {
-        for (int row = ROWS - 1; row >= 0; row--) {
-            if (board[row][column] == EMPTY) {
-                board[row][column] = currentPlayer.getDisc();
-                return true;
+    // Ellenőrzi, hogy egy lépés érvényes-e
+    public boolean isValidMove(String col) {
+        int column = col.charAt(0) - 'a'; // oszlop indexe (a-z)
+        return column >= 0 && column < cols && board[0][column].equals(" ");
+    }
+
+    // Lépés végrehajtása
+    public void makeMove(String col) {
+        int column = col.charAt(0) - 'a';
+        for (int row = rows - 1; row >= 0; row--) {
+            if (board[row][column].equals(" ")) {
+                board[row][column] = currentPlayer.equals("Yellow") ? "Y" : "R";
+                break;
             }
         }
-        return false;  // Ha az oszlop tele van
     }
 
-    // Ellenőrizzük a győzelmet
-    public boolean checkWin() {
-        char disc = currentPlayer.getDisc();
-        return checkHorizontalWin(disc) || checkVerticalWin(disc) || checkDiagonalWin(disc);
+    // Játékos váltás
+    public void switchPlayer() {
+        currentPlayer = currentPlayer.equals("Yellow") ? "Red" : "Yellow";
     }
 
-    private boolean checkHorizontalWin(char disc) {
-        for (int r = 0; r < ROWS; r++) {
-            for (int c = 0; c <= COLUMNS - 4; c++) {
-                if (board[r][c] == disc && board[r][c + 1] == disc &&
-                        board[r][c + 2] == disc && board[r][c + 3] == disc) {
+    // Játék vége ellenőrzése (nyertes keresés)
+    public boolean checkWinner() {
+        // Ellenőrizzük a vízszintes, függőleges és átlós nyerő kombinációkat
+        // Kód itt, például vízszintes ellenőrzés:
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols - 3; c++) {
+                if (board[r][c].equals(currentPlayer) && board[r][c + 1].equals(currentPlayer) &&
+                        board[r][c + 2].equals(currentPlayer) && board[r][c + 3].equals(currentPlayer)) {
                     return true;
                 }
             }
@@ -62,57 +65,18 @@ public class GameState {
         return false;
     }
 
-    private boolean checkVerticalWin(char disc) {
-        for (int c = 0; c < COLUMNS; c++) {
-            for (int r = 0; r <= ROWS - 4; r++) {
-                if (board[r][c] == disc && board[r + 1][c] == disc &&
-                        board[r + 2][c] == disc && board[r + 3][c] == disc) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private boolean checkDiagonalWin(char disc) {
-        // Balra le átló ellenőrzése
-        for (int r = 0; r <= ROWS - 4; r++) {
-            for (int c = 0; c <= COLUMNS - 4; c++) {
-                if (board[r][c] == disc && board[r + 1][c + 1] == disc &&
-                        board[r + 2][c + 2] == disc && board[r + 3][c + 3] == disc) {
-                    return true;
-                }
-            }
-        }
-        // Jobbra le átló ellenőrzése
-        for (int r = 0; r <= ROWS - 4; r++) {
-            for (int c = 3; c < COLUMNS; c++) {
-                if (board[r][c] == disc && board[r + 1][c - 1] == disc &&
-                        board[r + 2][c - 2] == disc && board[r + 3][c - 3] == disc) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    // Ellenőrizzük, hogy a tábla tele van-e
-    public boolean isBoardFull() {
-        for (int c = 0; c < COLUMNS; c++) {
-            if (board[0][c] == EMPTY) {
+    // Játék vége, ha nincs üres hely
+    public boolean isGameOver() {
+        for (int c = 0; c < cols; c++) {
+            if (board[0][c].equals(" ")) {
                 return false;
             }
         }
         return true;
     }
 
-    // Játékos váltása
-    public void switchPlayer() {
-        currentPlayer = (currentPlayer == player1) ? player2 : player1;
-    }
-
-    // Aktuális játékos visszaadása
-    public Player getCurrentPlayer() {
+    // Aktuális játékos lekérdezése
+    public String getCurrentPlayer() {
         return currentPlayer;
     }
 }
